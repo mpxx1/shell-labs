@@ -4,6 +4,6 @@
 
 
 ps -eo pid,lstart |
-sort -k2,2nr | 
+# sort -k2,2nr | 
 tail -1 | 
-cut -d' ' -f1
+cut -d $' ' -f2
