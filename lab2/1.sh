@@ -3,8 +3,11 @@
 # Посчитать количество процессов, запущенных пользователем user, и вывести в файл получившееся
 # число, а затем пары PID:команда для таких процессов.
 
-echo "proc cnt:" > 1.reslt
 
-ps -u $USER | wc -l >> 1.reslt
+ps -u $USER | cut -d $' ' -f2,8 | tail -n +2 | sed 's/ /:/g' > 1.rslt.tmp
 
-ps -u $USER | awk '{ printf "%s:%s\n", $2, $5 }' >> 1.reslt
+echo "proc cnt: $(wc -l 1.rslt.tmp | cut -d $' ' -f1)" > 1.rslt
+
+cat 1.rslt.tmp >> 1.rslt
+
+rm -f 1.rslt.tmp
