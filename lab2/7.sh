@@ -19,13 +19,19 @@ do
 done
 
 sleep 3 #60
+pids2=$(ps -eo pid | tail -n +2)
 
-for pid in $pids
+for pid in $pids2
 do 
 	if [ -f "/proc/$pid/io" ];
 	then
 		rd_byts=$(cat "/proc/$pid/io" | grep "read_bytes" | cut -d: -f2)
-		rd_byts_old=$(grep $pid 7.tmp.0 | cut -d: -f2)
+		rd_byts_old=0
+
+		if grep -q $pid 7.tmp.0 
+		then
+			rd_byts_old=$(grep $pid 7.tmp.0 | cut -d: -f2)
+		fi
 		dif=($rd_byts - $rd_byts_old)
 
 		echo "$pid : $dif" >> 7.tmp.1
@@ -33,4 +39,6 @@ do
 
 done
 
-cat 7.tmp.1 | sort -k2 | tail | head -n 3 > 7.rslt
+sort -k3nr 7.tmp.1 | head -n 3 > 7.rslt
+
+rm -f 7.tmp.[01]

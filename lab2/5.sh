@@ -1,55 +1,25 @@
 #!/bin/bash
 
+sed 's/Parent_ProcessID=//g' 4.rslt |
+sed 's/ProcessID=//g'  |
+sed 's/Average_Running_Time=//g' > 5.rslt.tmp
 
-# В полученном на предыдущем шаге файле после каждой группы записей с одинаковым
-# идентификатором родительского процесса вставить строку вида
-# Average_Running_Children_of_ParentID=N is M,
-# где N = PPID, а M – среднее, посчитанное из ART для всех процессов этого родителя.
+awk -F: '
+    {
+        pid=$1; ppid=$2; art=$3;
+        if (art != "" && art != 0) {
+            sum[ppid] += art;
+            count[ppid]++;
+        }
+    }
+    END {
+        for (ppid in sum) {
+            if (count[ppid] > 0) {
+                avg = sum[ppid] / count[ppid];
+                printf "Average_Running_Children_of_ParentID=%s\tis %.2f\n", ppid, avg;
+            }
+        }
+    }
+' 5.rslt.tmp
 
-#!/bin/bash
-
-ppids=$(cat 4.rslt | cut -d: -f2 | cut -d= -f2 | uniq)
-rm -f tmp
-touch tmp
-rm -f 5.rslt
-
-for ppid in $ppids
-do
-	counter=0
-      	IFS=$'\n'	
-
-	for line in $(cat 4.rslt)
-        do
-                cur_ppid=$(echo "$line" | cut -d: -f2 | cut -d= -f2)
-		pc_time=$(echo $line | cut -d: -f3 | cut -d= -f2)
-
-                if [ "$cur_ppid" -eq "$ppid" ];
-                then
-                        counter=$(echo "$counter + $pc_time" | bc)
-                fi
-        done
-	
-        echo "$ppid : $counter" >> tmp
-done
-
-cur_ppid=$(cat 4.rslt | cut -d: -f2 | cut -d= -f2 | uniq | head -n 1)
-
-for line in $(cat 4.rslt)
-do 
-        line_ppid=$(echo "$line" | cut -d: -f2 | cut -d= -f2)
-
-	if [ $line_ppid -eq $cur_ppid ];
-	then	
-		echo $line >> 5.rslt
-	else
-		grep "$cur_ppid" tmp | 
-		awk -F: '{ printf "Average_Running_Children_of_ParentID=%s is %s\n", $0, $1 }' >> 5.rslt
-		echo $line >> 5.rslt
-		cur_ppid=$line_ppid
-	fi
-done	
-
-grep "$line_ppid" tmp |
-awk -F: '{ printf "Average_Running_Children_of_ParentID=%s is %s\n", $0, $1 }' >> 5.rslt
-
-rm -r tmp
+rm -f 5.rslt.tmp
