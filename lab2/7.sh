@@ -1,36 +1,42 @@
 #!/bin/bash
 
-
 # Написать скрипт, определяющий три процесса, которые за 1 минуту, прошедшую с момента запуска
 # скрипта, считали максимальное количество байт из устройства хранения данных. Скрипт должен
 # выводить PID, строки запуска и объем считанных данных, разделенные двоеточием.
 
+get_proc_bytes() {
+        grep -Pos "rchar:\K.*" $(find /proc -maxdepth 2 -mindepth 2 -regex .*io)
+}
 
-pids=$(ps -eo pid | tail -n +2)
-rm -f 7.tmp.[01]
+get_proc_bytes > 7.proc.0
+sleep 10
+get_proc_bytes > 7.proc.1
 
-for pid in $pids
-do 
-	if [ -f "/proc/$pid/io" ];
+echo "" > 7.tmp
+echo "" > 7.rslt
+
+while read i
+do
+	if [[ -n "$i" ]]
 	then
-		rd_byts=$(cat "/proc/$pid/io" | grep "read_bytes" | cut -d: -f2)
-		echo "$pid : $rd_byts" >> 7.tmp.0
+        	pid=$(echo "$i" | grep -Po "/proc/\K[0-9]*")
+        	old_data=$(grep -Po "/proc/$pid/io: \K.*" 7.proc.0)
+        	new_data=$(echo "$i" | awk '{ print $2 }')
+        	
+		if [[ -n "$old_data" ]]
+        	then
+                	let diff="$new_data"-"$old_data"
+                	echo "$diff $pid" >> 7.tmp
+        	fi
 	fi
-done
+done < 7.proc.1
 
-sleep 3 #60
+cat 7.tmp |
+sort -rn |
+head --lines=3 |
+awk '{ print "PID", $2, "READ", $1 }' > 7.rslt
 
-for pid in $pids
-do 
-	if [ -f "/proc/$pid/io" ];
-	then
-		rd_byts=$(cat "/proc/$pid/io" | grep "read_bytes" | cut -d: -f2)
-		rd_byts_old=$(grep $pid 7.tmp.0 | cut -d: -f2)
-		dif=($rd_byts - $rd_byts_old)
+rm -f 7.tmp
+rm -f 7.proc.*
 
-		echo "$pid : $dif" >> 7.tmp.1
-	fi
-
-done
-
-cat 7.tmp.1 | sort -k2 | tail | head -n 3 > 7.rslt
+cat 7.rslt

@@ -3,7 +3,7 @@
 #Вывести на экран PID процесса, запущенного последним (с последним временем запуска).
 
 
-ps -eo pid,lstart |
-sort -k2,2nr | 
-tail -1 | 
-cut -d' ' -f1
+ps axo pid,comm,bsdstart |
+tac |
+head -6 |
+tail -1
