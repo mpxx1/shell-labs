@@ -17,7 +17,7 @@ do
         
 	if [[ $nr_switches > 0 ]];
         then
-                art=$(echo $sum_exec_runtime $nr_switches | awk '{ print $2/$1 }')
+                art=$(echo $sum_exec_runtime $nr_switches | awk '{ print $1/$2 }')
                 echo "ProcessID=$pid : Parent_ProcessID=$ppid : Average_Running_Time=$art" >> 4.rslt.tmp
         fi
 done
