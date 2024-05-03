@@ -44,14 +44,14 @@ fi
 
 name=$1
 
-if grep -q $1 "$LOG";
+if grep -q "$(./format.sh $1)" "$LOG";
 then 
-  name=$(echo $name $(date))
+  name=$(echo $1 $(date))
 fi
 
 
 ln $1 "$TRASH/"$value > /dev/null
 
-echo "$PWD/${name} > $value" >> $LOG
+echo "$PWD/${name}>$value" >> $LOG
 
 rm $1 
