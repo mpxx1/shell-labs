@@ -44,7 +44,15 @@ fi
 
 name=$1
 
-if grep -q "$(./format.sh $1)" "$LOG";
+
+file_names=$(
+  cat $LOG |
+  cut -d '>' -f1 |
+  sed 's/.*\///'
+)
+
+
+if grep -q "$(./format.sh $1)" <<< "$file_names";
 then 
   name=$(echo $1 $(date))
 fi

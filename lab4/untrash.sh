@@ -19,7 +19,12 @@ then
 fi
 
 
-search=$(grep $1 "$LOG")
+file_names=$(
+  cat $LOG |
+  cut -d '>' -f1
+)
+
+search=$(grep $1 <<< "$file_names")
 
 if [[ -z $search ]];
 then
@@ -29,6 +34,12 @@ fi
 
 
 for line in $search;
-do 
-  echo $line
+do
+  read -p "Proceed with file $line? [y/n]: " ans
+
+  case "$ans" in
+  "y")
+    echo "case yes"
+  "*")
+    echo "case skip"
 done
