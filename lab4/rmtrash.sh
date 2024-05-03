@@ -54,7 +54,7 @@ file_names=$(
 
 if grep -wq "$(./format.sh $1)" <<< "$file_names";
 then 
-  name=$(echo $1 $(date | sed 's, ,_,g'))
+  name=$(echo $1_$(date | sed 's, ,_,g'))
 fi
 
 

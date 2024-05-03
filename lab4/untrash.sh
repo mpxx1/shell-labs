@@ -19,12 +19,7 @@ then
 fi
 
 
-file_names=$(
-  cat $LOG |
-  cut -d '>' -f1
-)
-
-search=$(grep $1 <<< "$file_names")
+search=$(grep $1 "$LOG")
 
 if [[ -z $search ]];
 then
@@ -35,14 +30,42 @@ fi
 
 for line in $search;
 do
-  read -p "Proceed with file $line? [y/n]: " ans
+
+  full_path=$(echo $line | cut -d '>' -f1)
+  file_link=$(echo $line | cut -d '>' -f2)
+  read -p "Proceed with file $full_path? [y/n]: " ans
 
   case "$ans" in
   "y")
-    echo "case yes"
+
+    if [[ -d $(dirname "$full_path") ]];
+    then 
+
+      if [[ -f "$full_path" ]];
+      then
+        read -p "File with this name already exists, make new name for it: " new_name
+        ln "$TRASH/$file_link" "$(dirname $full_path)/$new_name"
+        rm "$TRASH/$file_link" 
+      else
+        ln "$TRASH/$file_link" "$full_path"
+        rm "$TRASH/$file_link"
+      fi
+      
+    else # use home dir
+
+      if [[ -f $HOME/$(basename "$full_path") ]];
+      then
+        read -p "File with this name already exists, make new name for it: " new_name
+        ln "$TRASH/$file_link" "$HOME/$new_name"
+        rm "$TRASH/$file_link" 
+      else
+        ln "$TRASH/$file_link" "$HOME/$(basename $full_path)"
+        rm "$TRASH/$file_link"
+      if
+      
     ;;
   *)
-    echo "case skip"
+      continue
     ;;
   esac
 done
