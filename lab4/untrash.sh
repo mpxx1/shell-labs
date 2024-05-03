@@ -40,6 +40,9 @@ do
   case "$ans" in
   "y")
     echo "case yes"
-  "*")
+    ;;
+  *)
     echo "case skip"
+    ;;
+  esac
 done

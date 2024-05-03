@@ -52,9 +52,9 @@ file_names=$(
 )
 
 
-if grep -q "$(./format.sh $1)" <<< "$file_names";
+if grep -wq "$(./format.sh $1)" <<< "$file_names";
 then 
-  name=$(echo $1 $(date))
+  name=$(echo $1 $(date | sed 's, ,_,g'))
 fi
 
 
