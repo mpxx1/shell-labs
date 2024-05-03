@@ -61,8 +61,8 @@ do
       else
         ln "$TRASH/$file_link" "$HOME/$(basename $full_path)"
         rm "$TRASH/$file_link"
-      if
-      
+      fi
+    fi  
     ;;
   *)
       continue
