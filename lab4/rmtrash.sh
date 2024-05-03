@@ -35,7 +35,8 @@ value=$(
 
 if [[ -z $value ]];
 then 
-  echo "" > $LOG
+  rm -rf $LOG
+  touch $LOG
   value=0
 else
   value=$(( ++value ))
@@ -43,12 +44,14 @@ fi
 
 name=$1
 
-if grep -q $1 "$TRASH";
+if grep -q $1 "$LOG";
 then 
   name=$(echo $name $(date))
 fi
 
 
-ln "$PWD/"$1 "$TRASH/"$value > /dev/null
+ln $1 "$TRASH/"$value > /dev/null
 
-echo "$(readlink -f $1) > $value" >> $LOG
+echo "$PWD/$(./format.sh ${name}) > $value" >> $LOG
+
+rm $1 
