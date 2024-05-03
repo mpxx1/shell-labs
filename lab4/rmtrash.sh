@@ -32,3 +32,23 @@ value=$(
   awk '{ split($0, a, ".trash/"); print a[2] }'
 )
 
+
+if [[ -z $value ]];
+then 
+  echo "" > $LOG
+  value=0
+else
+  value=$(( ++value ))
+fi
+
+name=$1
+
+if grep -q $1 "$TRASH";
+then 
+  name=$(echo $name $(date))
+fi
+
+
+ln "$PWD/"$1 "$TRASH/"$value > /dev/null
+
+echo "$(readlink -f $1) > $value" >> $LOG
