@@ -52,6 +52,6 @@ fi
 
 ln $1 "$TRASH/"$value > /dev/null
 
-echo "$PWD/$(./format.sh ${name}) > $value" >> $LOG
+echo "$PWD/${name} > $value" >> $LOG
 
 rm $1 
