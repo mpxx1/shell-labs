@@ -31,8 +31,8 @@ fi
 for line in $search;
 do
 
-  full_path=$(echo $line | cut -d '>' -f1)
-  file_link=$(echo $line | cut -d '>' -f2)
+  full_path=$(sed 's/\(.*\)>.*$/\1/' <<< $line)
+  file_link=$(awk -F'>' '{ print $NF }' <<< $line)
   read -p "Proceed with file $full_path? [y/n]: " ans
 
   case "$ans" in
