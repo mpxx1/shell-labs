@@ -8,9 +8,9 @@ then
 fi
 
 
-if [[ ! -f $1 ]]; 
+if [[ ! -f $1 && ! -d $1 ]]; 
 then
-    echo "File not found; Exit"
+    echo "File/Directory not found; Exit"
     exit 1
 fi
 
@@ -25,23 +25,12 @@ then
 fi
 
 
-value=$(
-  find "$TRASH" -type f -name "[[:alnum:]]" |
-  sort |
-  tail -n 1 |
-  awk '{ split($0, a, ".trash/"); print a[2] }'
-)
-
-
-if [[ -z $value ]];
+if [[ ! -e "$LOG" ]];
 then 
-  rm -rf $LOG
   touch $LOG
-  value=0
-else
-  value=$(( ++value ))
 fi
 
+value=$(uuid)
 name=$1
 
 
@@ -52,14 +41,19 @@ file_names=$(
 )
 
 
-if grep -wq "$(./format.sh $1)" <<< "$file_names";
+if grep -Fwq -- "$1" <<< "$file_names";
 then 
   name=$(echo $1_$(date '+%X' | sed 's, ,,g'))
 fi
 
 
-ln $1 "$TRASH/"$value > /dev/null
+if [[ -f $1 ]];
+then 
+  ln -- "$1" "$TRASH/"$value > /dev/null
+else
+  mv -- "$1" "$TRASH/"$value 
+fi
 
 echo "$PWD/${name}>$value" >> $LOG
 
-rm $1 
+rm -rf -- "$1" 
