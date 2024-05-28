@@ -18,7 +18,6 @@ then
   exit 1
 fi
 
-
 search=$(grep -F -- "$1" "$LOG")
 
 if [[ -z $search ]];
@@ -32,13 +31,22 @@ IFS=$'\n'
 for line in $search;
 do
 
-  IFS=$' '
+  IFS=' '
   full_path=$(sed 's/\(.*\)>.*$/\1/' <<< $line)
   file_link=$(awk -F'>' '{ print $NF }' <<< $line)
 
+  IFS=$'\n'
+  name2=$(basename $full_path | tr -d $'\n' | sed -E 's,_(.*)+[AP]M,,g')
+  s2=$(grep -F -- "$1" <<< $name2)
+
+  if [[ -z $s2 || $s2 == $"\n" ]];
+  then
+    continue 
+  fi 
+ 
   if [[ -e $TRASH/$file_link ]];
   then
-  
+ 
   IFS=$"\n"
   read -p "Proceed with file $full_path? [y/n]: " ans
   IFS=" "
@@ -53,11 +61,15 @@ do
       then
         read -p "File with this name already exists, make new name for it: " new_name
 
+        if [[ -e "$(dirname $full_path)/$new_name" ]];
+        then
+          rm -rf "$(dirname $full_path)/$new_name"
+        fi
+
         if [[ -f "$TRASH/$file_link" ]];
         then
           ln "$TRASH/$file_link" "$(dirname $full_path)/$new_name"
         else
-          rm -rf "$(dirname $full_path)/$new_name"
           mv "$TRASH/$file_link" "$(dirname $full_path)/$new_name" 
         fi  
       else
@@ -77,12 +89,16 @@ do
       if [[ -e $HOME/$(basename "$full_path") ]];
       then
         read -p "File with this name already exists, make new name for it: " new_name
+
+        if [[ -e "$HOME/$new_name" ]];
+        then 
+          rm -rf $HOME/$new_name
+        fi
         
         if [[ -f "$TRASH/$file_link" ]];
         then
           ln "$TRASH/$file_link" "$HOME/$new_name"
-        else
-          rm -rf "$HOME/$new_name" 
+        else 
           mv "$TRASH/$file_link" "$HOME/$new_name"
         fi
       
@@ -97,9 +113,7 @@ do
       fi
 
       rm -rf "$TRASH/$file_link"
-    fi
-
-#    sed -i "s,$full_path>$file_link_extra,,g" $LOG     
+    fi     
     ;;
   *)
       continue
