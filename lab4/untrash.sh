@@ -73,6 +73,7 @@ do
 
         if [[ -e "$(dirname $full_path)/$new_name" ]];
         then
+          echo "you didn't change file name, i'll remove old one"
           rm -rf "$(dirname $full_path)/$new_name"
         fi
 
@@ -102,6 +103,7 @@ do
 
         if [[ -e "$HOME/$new_name" ]];
         then 
+          echo "you didn't change file name, i'll remove old one"
           rm -rf $HOME/$new_name
         fi
         
