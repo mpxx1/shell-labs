@@ -34,17 +34,17 @@ value=$(uuid)
 name=$1
 
 
-file_names=$(
-  cat $LOG |
-  cut -d '>' -f1 |
-  sed 's/.*\///'
-)
+#file_names=$(
+#  cat $LOG |
+#  cut -d '>' -f1 |
+#  sed 's/.*\///'
+#)
 
 
-if grep -Fwq -- "$1" <<< "$file_names";
-then 
-  name=$(echo $1_$(date '+%X' | sed 's, ,,g'))
-fi
+#if grep -Fwq -- "$1" <<< "$file_names";
+#then 
+#  name=$(echo $1_$(date '+%X' | sed 's, ,,g'))
+#fi
 
 
 if [[ -f $1 ]];

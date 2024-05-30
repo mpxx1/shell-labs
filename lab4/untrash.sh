@@ -44,11 +44,21 @@ do
     continue 
   fi 
  
-  if [[ -e $TRASH/$file_link ]];
+  if [[ ! -e $TRASH/$file_link ]];
   then
+    continue
+  fi
  
   IFS=$"\n"
-  read -p "Proceed with file $full_path? [y/n]: " ans
+
+  ident='file'
+
+  if [[ -d "$TRASH/$file_link" ]];
+  then
+    ident='dir'
+  fi
+  
+  read -p "Proceed with $ident $full_path? [y/n]: " ans
   IFS=" "
 
   case "$ans" in
@@ -120,5 +130,4 @@ do
     ;;
   esac
 
-  fi
 done
